@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFC_Ex2.DAL.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240302132410_Init")]
+    [Migration("20240303112556_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,11 +41,21 @@ namespace EFC_Ex2.DAL.Migrations
                     b.Property<int>("HittedGoalsByTeam2")
                         .HasColumnType("int");
 
+                    b.Property<int>("Teams1Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Teams2Id")
+                        .HasColumnType("int");
+
                     b.Property<string>("Winner")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Teams1Id");
+
+                    b.HasIndex("Teams2Id");
 
                     b.ToTable("Matches");
                 });
@@ -101,9 +111,6 @@ namespace EFC_Ex2.DAL.Migrations
                     b.Property<int?>("HittedGoals")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MatchesId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("MissedGoals")
                         .HasColumnType("int");
 
@@ -116,15 +123,32 @@ namespace EFC_Ex2.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MatchesId");
-
                     b.ToTable("SoccerTeams");
+                });
+
+            modelBuilder.Entity("EFC_Ex2.DAL.Moduls.Matches", b =>
+                {
+                    b.HasOne("EFC_Ex2.DAL.Moduls.SoccerTeams", "Teams1")
+                        .WithMany()
+                        .HasForeignKey("Teams1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EFC_Ex2.DAL.Moduls.SoccerTeams", "Teams2")
+                        .WithMany()
+                        .HasForeignKey("Teams2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Teams1");
+
+                    b.Navigation("Teams2");
                 });
 
             modelBuilder.Entity("EFC_Ex2.DAL.Moduls.SoccerTeamComposition", b =>
                 {
                     b.HasOne("EFC_Ex2.DAL.Moduls.SoccerTeams", "Team")
-                        .WithMany()
+                        .WithMany("Players")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -134,14 +158,7 @@ namespace EFC_Ex2.DAL.Migrations
 
             modelBuilder.Entity("EFC_Ex2.DAL.Moduls.SoccerTeams", b =>
                 {
-                    b.HasOne("EFC_Ex2.DAL.Moduls.Matches", null)
-                        .WithMany("Teams")
-                        .HasForeignKey("MatchesId");
-                });
-
-            modelBuilder.Entity("EFC_Ex2.DAL.Moduls.Matches", b =>
-                {
-                    b.Navigation("Teams");
+                    b.Navigation("Players");
                 });
 #pragma warning restore 612, 618
         }

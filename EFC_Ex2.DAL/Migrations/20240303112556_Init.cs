@@ -10,22 +10,6 @@ namespace EFC_Ex2.DAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Matches",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    HittedGoalsByTeam1 = table.Column<int>(type: "int", nullable: false),
-                    HittedGoalsByTeam2 = table.Column<int>(type: "int", nullable: false),
-                    Winner = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfMatch = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Matches", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SoccerTeams",
                 columns: table => new
                 {
@@ -37,17 +21,41 @@ namespace EFC_Ex2.DAL.Migrations
                     DefCount = table.Column<int>(type: "int", nullable: false),
                     DrawCount = table.Column<int>(type: "int", nullable: false),
                     HittedGoals = table.Column<int>(type: "int", nullable: true),
-                    MissedGoals = table.Column<int>(type: "int", nullable: true),
-                    MatchesId = table.Column<int>(type: "int", nullable: true)
+                    MissedGoals = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SoccerTeams", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Matches",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Teams1Id = table.Column<int>(type: "int", nullable: false),
+                    Teams2Id = table.Column<int>(type: "int", nullable: false),
+                    HittedGoalsByTeam1 = table.Column<int>(type: "int", nullable: false),
+                    HittedGoalsByTeam2 = table.Column<int>(type: "int", nullable: false),
+                    Winner = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfMatch = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Matches", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SoccerTeams_Matches_MatchesId",
-                        column: x => x.MatchesId,
-                        principalTable: "Matches",
-                        principalColumn: "Id");
+                        name: "FK_Matches_SoccerTeams_Teams1Id",
+                        column: x => x.Teams1Id,
+                        principalTable: "SoccerTeams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Matches_SoccerTeams_Teams2Id",
+                        column: x => x.Teams2Id,
+                        principalTable: "SoccerTeams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,26 +81,31 @@ namespace EFC_Ex2.DAL.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Matches_Teams1Id",
+                table: "Matches",
+                column: "Teams1Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matches_Teams2Id",
+                table: "Matches",
+                column: "Teams2Id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SoccerTeamCmp_TeamId",
                 table: "SoccerTeamCmp",
                 column: "TeamId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SoccerTeams_MatchesId",
-                table: "SoccerTeams",
-                column: "MatchesId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Matches");
+
+            migrationBuilder.DropTable(
                 name: "SoccerTeamCmp");
 
             migrationBuilder.DropTable(
                 name: "SoccerTeams");
-
-            migrationBuilder.DropTable(
-                name: "Matches");
         }
     }
 }

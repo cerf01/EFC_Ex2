@@ -18,5 +18,7 @@ namespace EFC_Ex2.DAL.Moduls
         public int? HittedGoals { get; set; }
 
         public int? MissedGoals { get; set; }
+
+        public List<SoccerTeamComposition> Players { get; set; }
     }
 }

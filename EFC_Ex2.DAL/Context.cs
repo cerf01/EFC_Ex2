@@ -24,5 +24,20 @@ namespace EFC_Ex2.DAL
 
             optionsBuilder.UseSqlServer(connectionStr);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        { 
+            base.OnModelCreating(modelBuilder); 
+
+            modelBuilder.Entity<Matches>()
+                .HasOne<SoccerTeams>(f => f.Teams1)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Matches>()
+                .HasOne<SoccerTeams>(f => f.Teams2)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

@@ -2,9 +2,10 @@
 using EFC_Ex2.DAL.Moduls;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore;
-using EFC_Ex2.DAL.Migrations;
+/*using EFC_Ex2.DAL.Migrations;*/
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Xml.Linq;
 
 namespace EFC_Ex2
 {
@@ -12,6 +13,13 @@ namespace EFC_Ex2
     {
         static void Main(string[] args)
         {
+
+            AutoSetTeam1();
+
+            AutoSetTeam2();
+
+            AutoSetMatch();
+    
             string q = "";
             do
             {
@@ -31,7 +39,7 @@ namespace EFC_Ex2
                     case "-add":
                         {
                             AddData(UserPrompt("Enter table"));
-                            Console.WriteLine("Item added!");
+                          
                         }
                         break;
                     case "3":
@@ -98,12 +106,14 @@ namespace EFC_Ex2
             } while (q != "endoftime");
             Console.ReadKey();
         }
+
         private static void ShowData(string tableName)
         {
             using (var context = new Context())
             {
                 switch (tableName.ToLower())
                 {
+                    case "t":
                     case "teams":
                         {
                             var teamsInfo = context.SoccerTeams;
@@ -114,17 +124,22 @@ namespace EFC_Ex2
                             }
                         }
                         break;
+                    case "m":
                     case "matches":
                         {
 
-                            var match = context.Matches.Include(m => m.Teams).ToList();
+                            var matchs = context.Matches
+                                .Include(m => m.Teams1)
+                                .Include(m => m.Teams2)
+                                .ToList();
 
-                            Console.WriteLine();
-                            foreach (var item in match)
-                                Console.WriteLine($"{item.DateOfMatch},{item.Teams[0].Name},{item.Teams[1].Name}");
-                            
+                            Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
+                            foreach (var match in matchs)
+                                Console.WriteLine($"{match.DateOfMatch} | {match.Teams1.Name} | {match.Teams2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
+
                         }
                         break;
+                    case "p":
                     case "player":
                         {
                             add(context, MapPlayer());
@@ -135,6 +150,7 @@ namespace EFC_Ex2
                             Console.WriteLine("wrong input!");
                             return;
                         }
+                        Console.WriteLine("Item added!");
                 }
 
 
@@ -219,23 +235,7 @@ namespace EFC_Ex2
             return Console.ReadLine();
         }
 
-        private static SoccerTeams MapSoccerTeam()
-        {
-            var team = new SoccerTeams()
-            {
-
-                Name = UserPrompt("Enter teams name"), 
-                City = UserPrompt("Enter teams city"),
-                WinCount = (int)ParseData<int>(UserPrompt("Enter number of wins")),
-                DefCount = (int)ParseData<int>(UserPrompt("Enter number of defeats")),
-                DrawCount = (int)ParseData<int>(UserPrompt("Enter number of draws")),
-                HittedGoals = ParseData<int>(UserPrompt("Enter number of  hitted goals")),
-                MissedGoals = ParseData<int>(UserPrompt("Enter number of  missed goals")),
-
-            };
-
-            return team;
-        }
+       
 
         private static SoccerTeams GetTeam(string prompt)
         {
@@ -269,6 +269,24 @@ namespace EFC_Ex2
             }
         }
 
+        private static SoccerTeams MapSoccerTeam()
+        {
+            var team = new SoccerTeams()
+            {
+
+                Name = UserPrompt("Enter teams name"),
+                City = UserPrompt("Enter teams city"),
+                WinCount = (int)ParseData<int>(UserPrompt("Enter number of wins")),
+                DefCount = (int)ParseData<int>(UserPrompt("Enter number of defeats")),
+                DrawCount = (int)ParseData<int>(UserPrompt("Enter number of draws")),
+                HittedGoals = ParseData<int>(UserPrompt("Enter number of  hitted goals")),
+                MissedGoals = ParseData<int>(UserPrompt("Enter number of  missed goals")),
+
+            };
+
+            return team;
+        }
+
         private static SoccerTeamComposition MapPlayer() 
         {
             var palayer = new SoccerTeamComposition() 
@@ -285,7 +303,8 @@ namespace EFC_Ex2
         {
             var match = new Matches()
             {
-                Teams = new List<SoccerTeams>() { GetTeam(UserPrompt("Enter team 1 name")), GetTeam(UserPrompt("Enter team 2 name")) },
+                Teams1 = GetTeam(UserPrompt("Enter team 1 name")),
+                Teams2 = GetTeam(UserPrompt("Enter team 2 name")),
                 DateOfMatch = (DateTime)ParseData<DateTime>(UserPrompt("Enter date of this match")),
                 HittedGoalsByTeam1 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 1")),
                 HittedGoalsByTeam2 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 2")),
@@ -295,6 +314,53 @@ namespace EFC_Ex2
             return match;
         }
 
+        private static void AutoSetTeam1() 
+        {
+          var team = new SoccerTeams()
+          {
+              Name = "Team1",
+              City = "City17",
+              WinCount = 13,
+              DefCount = 8,
+              DrawCount = 4,
+              HittedGoals = 30,
+              MissedGoals = 18,
+          };
+
+            add(new Context(), team);
+        }
+
+
+        private static void AutoSetTeam2()
+        {
+            var team = new SoccerTeams()
+            {
+                Name = "14Gorilaz",
+                City = "NewYotus",
+                WinCount = 15,
+                DefCount = 12,
+                DrawCount = 7,
+                HittedGoals = 19,
+                MissedGoals = 14,
+            };
+
+            add(new Context(), team);
+        }
+
+        private static void AutoSetMatch() 
+        {
+
+            add(new Context(), new Matches()
+            {
+                Teams1 = GetTeam("Team1"),
+                Teams2 = GetTeam("14Gorilaz"),
+                DateOfMatch = (DateTime)ParseData<DateTime>("2023-12-12"),
+                HittedGoalsByTeam1 =12,
+                HittedGoalsByTeam2 =10,
+                Winner = "Team1",
+            }) ;
+
+        }
 
         private static void AddData(string tableName)
         {
@@ -302,17 +368,20 @@ namespace EFC_Ex2
             {
                 switch (tableName.ToLower())
                 {
+                    case "t":
                     case "team":
                         {
                             add(context, MapSoccerTeam());
                         }
                         break;
+                    case "m":
                     case "match":
                         {
                       
                             add(context, MapMatch());
                         }
                         break;
+                    case "p":
                     case "player":
                         {
                             add(context, MapPlayer());
@@ -371,21 +440,6 @@ namespace EFC_Ex2
 
                 context.Remove(entity);
                 context.SaveChanges();
-        }
-
-        private static void DeleteData()
-        {
-            using (var context = new Context())
-            {
-                int? teamId = ParseData<int>(UserPrompt("Enter id of team"));
-                if (teamId == null)
-                    return;
-
-                var team = context.SoccerTeams.Where(e => e.Id == teamId).First();
-
-                context.SoccerTeams.Remove(team);
-                context.SaveChanges();
-            }
         }
 
         private static void UpdateData()
