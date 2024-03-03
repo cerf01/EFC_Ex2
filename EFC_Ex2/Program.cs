@@ -373,6 +373,21 @@ namespace EFC_Ex2
                 context.SaveChanges();
         }
 
+        private static void DeleteData()
+        {
+            using (var context = new Context())
+            {
+                int? teamId = ParseData<int>(UserPrompt("Enter id of team"));
+                if (teamId == null)
+                    return;
+
+                var team = context.SoccerTeams.Where(e => e.Id == teamId).First();
+
+                context.SoccerTeams.Remove(team);
+                context.SaveChanges();
+            }
+        }
+
         private static void UpdateData()
         {
             using (var context = new Context())
