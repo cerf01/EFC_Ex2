@@ -5,6 +5,7 @@ namespace EFC_Ex2.DAL.Moduls
     {
         public int Id { get; set; }
 
+        public int TeamId { get; set; }
         public SoccerTeams Team { get; set; }
 
         public string FullName { get; set; }

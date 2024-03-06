@@ -5,9 +5,11 @@ namespace EFC_Ex2.DAL.Moduls
     {
         public int Id { get; set; }
 
-        public SoccerTeams Teams1 { get; set; }
+        public int Team1Id { get; set; }
+        public SoccerTeams Team1 { get; set; }
 
-        public SoccerTeams Teams2 { get; set; }
+        public int Team2Id { get; set; }
+        public SoccerTeams Team2 { get; set; }
 
         public int HittedGoalsByTeam1 { get; set; }
 

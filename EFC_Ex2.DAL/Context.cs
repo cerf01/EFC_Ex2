@@ -30,12 +30,12 @@ namespace EFC_Ex2.DAL
             base.OnModelCreating(modelBuilder); 
 
             modelBuilder.Entity<Matches>()
-                .HasOne<SoccerTeams>(f => f.Teams1)
+                .HasOne<SoccerTeams>(f => f.Team1)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Matches>()
-                .HasOne<SoccerTeams>(f => f.Teams2)
+                .HasOne<SoccerTeams>(f => f.Team2)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
         }
