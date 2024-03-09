@@ -3,106 +3,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFC_Ex2.DAL
 {
-    public class Repository
+    public class Repository<TEntity> where TEntity : class
     {
-        private Context _context;
 
+        private Context _context;
+        public Repository(DbContextOptions<Context> options)
+        {
+            _context = new Context(options);
+        }
+        
         public Repository()
         {
             _context = new Context();
         }
+     
 
-        public void add(object entity)
+        public TEntity add(TEntity entity) 
+        { 
+            var result = _context.Set<TEntity>().Add(entity).Entity; 
+            _context.SaveChanges(); 
+            return result; 
+        }
+
+        public void addRange(List<TEntity> entity)
         {
-
-            _context.Add(entity);
+           _context.Set<TEntity>().AddRange(entity);
             _context.SaveChanges();
-
+   
         }
 
-        public void delete(object entity)
-        {
-
-            _context.Remove(entity);
+        public TEntity Get(int id) 
+        { 
+            return _context.Set<TEntity>().Find(id); 
+        }
+        public DbSet<TEntity> GetAll() 
+        { 
+            return _context.Set<TEntity>();
+        }
+        public void delete(int id) 
+        { 
+            var entity = _context.Set<TEntity>().Find(id); 
+            _context.Set<TEntity>().Remove(entity); 
             _context.SaveChanges();
-
         }
-
-        public void update(object entity)
-        {
-
-            _context.Update(entity);
-            _context.SaveChanges();
-
+        public void update(int id, TEntity entity) 
+        { 
+            var existingEntity = _context.Set<TEntity>().Find(id); 
+            _context.Entry(existingEntity).CurrentValues.SetValues(entity); 
+            _context.SaveChanges(); 
         }
-
-        public SoccerTeams GetTeam(string input)
-        {
-
-            var result = _context.SoccerTeams
-                                 .Where(t => t.Name.ToLower() == input.ToLower())
-                                 .First();
-            return result;
-
-
-        }
-
-        public SoccerTeamComposition GetPlayer(string input)
-        {
-
-            var result = _context.SoccerTeamCmp
-                                .Where(p => p.FullName.ToLower()
-                                .Contains(input.ToLower()))
-                                .First();
-            return result;
-
-
-        }
-
-        public Matches GetMatch(DateTime input)
-        {
-
-            var result = _context.Matches
-                                  .Where(m => m.DateOfMatch
-                                  .Equals(input))
-                                  .First();
-            return result;
-
-        }
-
-        public DbSet<SoccerTeams> GetAllTeams()
-        {
-                var result = _context.SoccerTeams;
-                return result;
-           
-        }
-
-        public DbSet<Matches> GetAllMatches()
-        {
-                var result = _context.Matches;
-                return result;
-           
-        }
-
-        public DbSet<SoccerTeamComposition> GetAllPlaysers()
-        {
-            var result = _context.SoccerTeamCmp;
-            return result;
-        }
-
-
-
-
-
-
-
-        //public DbSet<TEntity> GetAll(TEntity entity)
-        //{
-
-        //    var result = _context.Set<entity>;
-        //    return result;
-
-        //}
-
     }
 }
+
+

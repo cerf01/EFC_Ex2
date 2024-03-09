@@ -1,23 +1,27 @@
 ﻿using EFC_Ex2.DAL;
 using EFC_Ex2.DAL.Moduls;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace EFC_Ex2
 {
     public class Service
     {
 
-        private Repository _repository;
-
+        private Repository<SoccerTeams> _teamRepository;
+        private Repository<SoccerTeamComposition> _PlayerRepository;
+        private Repository<Matches> _matchesRepository;
         public Service()
         {
-            _repository = new Repository();
+            _teamRepository = new Repository<SoccerTeams>();
+            _PlayerRepository = new Repository<SoccerTeamComposition>();
+            _matchesRepository = new Repository<Matches>();
         }
 
         private void ShowTeams()
         {
  
-                var teamsInfo = _repository.GetAllTeams();
+                var teamsInfo = _teamRepository.GetAll();
                 Console.WriteLine("Team |  City | Wins | Defeats | Draw | Hitted Goals | Missed Goals");
                 foreach (var team in teamsInfo)
                 {
@@ -29,11 +33,14 @@ namespace EFC_Ex2
         private void ShowMatches()
         {
 
-            var matchs = _repository.GetAllMatches();
-
+            var matchs = _matchesRepository
+                .GetAll()
+                .Include(m => m.Team1)
+                .Include(m => m.Team2);
+            
             Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
             foreach (var match in matchs)
-                Console.WriteLine($"{match.DateOfMatch} | {match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
+                Console.WriteLine($"{match.DateOfMatch} | { match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
 
         }
 
@@ -62,7 +69,7 @@ namespace EFC_Ex2
         public void ShowMaxThings(int stage)
         {
 
-            var teamsInfo = _repository.GetAllTeams();
+            var teamsInfo = _teamRepository.GetAll();
 
             switch (stage)
             {
@@ -99,6 +106,180 @@ namespace EFC_Ex2
             }
         }
 
+        private Dictionary<string, int> CalculPoints() 
+        {
+            var TemasPoints = new Dictionary<string, int>();
+
+            var teams = _teamRepository.GetAll().ToList();
+
+            int points = 0;
+            for (int i = 0; i < teams.Count; i++)
+            {
+                points = (teams[i].WinCount * 3) + teams[i].DrawCount;
+                TemasPoints.Add(teams[i].Name, points);
+            }
+            return TemasPoints;
+        }
+
+        public void ShowBestOfTeams(string stage) 
+        {
+            switch (stage) 
+            {
+                case "1":
+                    {
+                        var teams = _teamRepository.GetAll().OrderByDescending(t => t.HittedGoals).ToList();
+                        for (int i  = 0; i <3; i++)
+                        {
+                            if (i >= teams.Count)
+                                break;
+                            Console.WriteLine(teams[i].Name+" "+ teams[i].HittedGoals);
+                         
+                        }
+                        
+                    }
+                    break;
+
+                    case"2": 
+                    {
+                        var item = _teamRepository.GetAll().OrderByDescending(t => t.HittedGoals).First();
+
+                            Console.WriteLine(item.Name + " " + item.HittedGoals);
+
+                    }
+                    break;
+
+                case "3":
+                    {
+                        var teams = _teamRepository.GetAll().OrderBy(t => t.MissedGoals).ToList();
+
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (i >= teams.Count)
+                                break;
+                            Console.WriteLine(teams[i].Name + " " + teams[i].MissedGoals);
+
+                        }
+
+                    }
+                    break;
+
+                case "4":
+                    {
+                        var team = _teamRepository.GetAll().OrderBy(t => t.MissedGoals).First();
+
+                        Console.WriteLine(team.Name + " " + team.MissedGoals);
+
+                    }
+                    break;
+
+                    case "5":
+                    {
+
+                        var ordered = CalculPoints().OrderByDescending(p => p.Value).ToList();
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (i >= ordered.Count)
+                                break;
+                            Console.WriteLine(ordered[i].Key+" "+ ordered[i].Value);
+                        }
+
+                    }
+                    break;
+
+                case "6":
+                    {
+
+                        var ordered = CalculPoints().OrderByDescending(p => p.Value).First();
+             
+                            Console.WriteLine(ordered.Key + " " + ordered.Value);
+                        
+
+                    }
+                    break;
+
+                case "7":
+                    {
+
+                        var ordered = CalculPoints().OrderBy(p => p.Value).ToList();
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (i >= ordered.Count)
+                                break;
+                            Console.WriteLine(ordered[i].Key + " " + ordered[i].Value);
+                        }
+
+                    }
+                    break;
+
+                case "8":
+                    {
+
+                        var ordered = CalculPoints().OrderBy(p => p.Value).First();
+
+                        Console.WriteLine(ordered.Key + " " + ordered.Value);
+
+
+                    }
+                    break;
+            }
+        }
+
+        private void find1(string input)
+        {
+
+            var teamsInfo = _teamRepository.GetAll();
+
+            var output = teamsInfo
+                        .Where(e => e.Name.ToLower()
+                        .Contains(input.ToLower()));
+
+            Console.WriteLine("Team |  City | Wins | Defeats | Draw | Hitted Goals | Missed Goals");
+            foreach (var item in output)
+                Console.WriteLine($"{item.Name} | {item.City} | {item.WinCount} | {item.DefCount} | {item.DrawCount} | {item.HittedGoals} | {item.MissedGoals}");
+
+        }
+        private void find2(string input)
+        {
+
+            var matchs = _matchesRepository.GetAll().ToList();
+ 
+
+
+                 var output = matchs.Where(e => e.DateOfMatch == ParseData<DateTime>(input));
+
+            Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
+            foreach (var match in matchs)
+                Console.WriteLine($"{match.DateOfMatch} | {match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
+
+
+        }
+
+        private void find3(string input)
+        {
+            var matchs = _matchesRepository
+                           .GetAll()
+                           .ToList();
+
+            var output = matchs.Where(e => e.DateOfMatch == ParseData<DateTime>(input)).Select(e => e.Winner);
+            foreach (var match in matchs)
+                Console.WriteLine($"{match.Winner}");
+
+        }
+
+        public void find4(string input)
+        {
+            var matchs = _matchesRepository.GetAll().ToList();
+
+            var output = matchs.Where(e => e.Team1.Name == input || e.Team2.Name == input);
+
+            Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
+            foreach (var match in matchs)
+                Console.WriteLine($"{match.DateOfMatch} | {match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
+
+
+
+        }
+
         public void FindInfo(int stage)
         {
             switch (stage)
@@ -113,71 +294,11 @@ namespace EFC_Ex2
                     find3(UserPrompt("Enter date"));
                     break;
                 case 3:
+
+
                     break;
             }
-        }
-
-        private void find1(string input)
-        {
-
-            var teamsInfo = _repository.GetAllTeams();
-
-            var output = teamsInfo
-                        .Where(e => e.Name.ToLower()
-                        .Contains(input.ToLower()));
-
-            Console.WriteLine("Team |  City | Wins | Defeats | Draw | Hitted Goals | Missed Goals");
-            foreach (var item in output)
-                Console.WriteLine($"{item.Name} | {item.City} | {item.WinCount} | {item.DefCount} | {item.DrawCount} | {item.HittedGoals} | {item.MissedGoals}");
-
-        }
-
-        private void find2(string input)
-        {
-
-            var matchs = _repository.GetAllMatches()
-                           .Include(m => m.Team1)
-                           .Include(m => m.Team2)
-                           .ToList();
-
-            var output = matchs.Where(e => e.DateOfMatch == ParseData<DateTime>(input));
-
-            Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
-            foreach (var match in matchs)
-                Console.WriteLine($"{match.DateOfMatch} | {match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
-
-
-        }
-
-        private void find3(string input)
-        {
-            var matchs = _repository.GetAllMatches()
-                           .Include(m => m.Team1)
-                           .Include(m => m.Team2)
-                           .ToList();
-
-            var output = matchs.Where(e => e.DateOfMatch == ParseData<DateTime>(input)).Select(e => e.Winner);
-            foreach (var match in matchs)
-                Console.WriteLine($"{match.Winner}");
-
-        }
-
-        public void find4(string input)
-        {
-            var matchs = _repository.GetAllMatches()
-                                      .Include(m => m.Team1)
-                                      .Include(m => m.Team2)
-                                      .ToList();
-
-            var output = matchs.Where(e => e.Team1.Name == input || e.Team2.Name == input);
-
-            Console.WriteLine("Date of match | Team 1 | Team 2 | Hitted goals by Team 1 | Hitted goals by Team 2 | Winner ");
-            foreach (var match in matchs)
-                Console.WriteLine($"{match.DateOfMatch} | {match.Team1.Name} | {match.Team2.Name} | {match.HittedGoalsByTeam1} | {match.HittedGoalsByTeam2} | ");
-
-
-
-        }
+        }  
 
         private T? ParseData<T>(string str) where T : struct
         {
@@ -219,7 +340,11 @@ namespace EFC_Ex2
             {
                 FullName = UserPrompt("Enter plaeyrs fullname"),
                 Country = UserPrompt("Enter players country"),
-                Team = _repository.GetTeam(UserPrompt("Enter teams name")),
+                Team = _teamRepository.Get(_teamRepository
+                                    .GetAll()
+                                    .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                    .Select(t => t.Id)
+                                    .First()),
                 Position = UserPrompt("Enter players position")
             };
             return palayer;
@@ -229,8 +354,18 @@ namespace EFC_Ex2
         {
             var match = new Matches()
             {
-                Team1Id = _repository.GetTeam(UserPrompt("Enter team 1 name")).Id,
-                Team2Id = _repository.GetTeam(UserPrompt("Enter team 2 name")).Id,
+                Team1Id = _teamRepository.Get(_teamRepository
+                                     .GetAll()
+                                     .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                     .Select(t => t.Id)
+                                     .First()).Id,
+
+                Team2Id = _teamRepository.Get(_teamRepository
+                                     .GetAll()
+                                     .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                     .Select(t => t.Id)
+                                     .First()).Id,
+
                 DateOfMatch = (DateTime)ParseData<DateTime>(UserPrompt("Enter date of this match")),
                 HittedGoalsByTeam1 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 1")),
                 HittedGoalsByTeam2 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 2")),
@@ -244,7 +379,11 @@ namespace EFC_Ex2
         private SoccerTeams? UPDTeam(string prompt)
         {
 
-            var team = _repository.GetTeam(prompt);
+            var team = _teamRepository.Get(_teamRepository
+                                     .GetAll()
+                                     .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                     .Select(t => t.Id)
+                                     .First());
             var selector = ParseData<int>(UserPrompt("Select field to update:\n 1 - Name\n2 - City\n3 - Wins\n4 - Defeats\n5 - Draw\n 6 - Hitted Goals\n7 - Missed Goals"));
 
             switch (selector)
@@ -275,27 +414,7 @@ namespace EFC_Ex2
             return team;
         }
 
-        private Matches? UPDMatch(string prompt)
-        {
-            var match = _repository.GetMatch((DateTime)ParseData<DateTime>(prompt));
-
-            var selector = ParseData<int>(UserPrompt("Select field to update:\n 1 - Name\n2 - City\n3 - Wins\n4 - Defeats\n5 - Draw\n 6 - Hitted Goals\n7 - Missed Goals"));
-
-            switch (selector)
-            {
-                case 1:
-                    match.HittedGoalsByTeam1 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 1"));
-                    break;
-                case 2:
-                    match.HittedGoalsByTeam2 = (int)ParseData<int>(UserPrompt("Enter hitted goals by team 2"));
-                    break;
-                case 3:
-                    match.Winner = UserPrompt("Enter winner");
-                    break;
-                default: return null;
-            }
-            return match;
-        }
+       
 
         public void UpdateData()
         {
@@ -306,10 +425,21 @@ namespace EFC_Ex2
             switch (tableName)
             {
                 case "teams":
-                    _repository.update(UPDTeam(UserPrompt("Enrter teams name")));
+                    {
+                        var team = _teamRepository.Get(_teamRepository
+                                     .GetAll()
+                                     .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                     .Select(t => t.Id).First());
+                        _teamRepository.update(team.Id, team);
+                    }
                     break;
                 case "matchs":
-                    _repository.update(UPDMatch(UserPrompt("Enrter teams name")));
+                    {
+                        var match = _matchesRepository.Get(_matchesRepository
+                                        .GetAll()
+                                     .Where(t => t.DateOfMatch == ParseData<DateTime>(UserPrompt("enter match date"))).First().Id);
+                        _matchesRepository.update(match.Id, match);
+                    }
                     break;
                 default: return;
             }
@@ -324,20 +454,20 @@ namespace EFC_Ex2
                 case "t":
                 case "team":
                     {
-                        _repository.add(MapSoccerTeam());
+                        _teamRepository.add(MapSoccerTeam());
                     }
                     break;
                 case "m":
                 case "match":
                     {
 
-                        _repository.add(MapMatch());
+                        _matchesRepository.add(MapMatch());
                     }
                     break;
                 case "p":
                 case "player":
                     {
-                        _repository.add(MapPlayer());
+                        _PlayerRepository.add(MapPlayer());
                     }
                     break;
                 default:
@@ -356,22 +486,24 @@ namespace EFC_Ex2
 
             switch (tableName)
             {
-                case "teams":
+                case "team":
                     {
-                        _repository.delete(_repository.GetTeam(UserPrompt("Enrter teams name")));
+                        var team = _teamRepository.Get(_teamRepository
+                                    .GetAll()
+                                    .Where(t => t.Name.ToLower() == UserPrompt("enter name").ToLower())
+                                    .Select(t => t.Id).First());
+                        _teamRepository.delete(team.Id);
                     }
                     break;
-                case "macthse":
+                case "macth":
                     {
-
-                        _repository.delete(_repository.GetMatch((DateTime)ParseData<DateTime>(UserPrompt("Enter date of  match"))));
+                        var match = _matchesRepository.Get(_matchesRepository
+                                      .GetAll()
+                                   .Where(t => t.DateOfMatch == ParseData<DateTime>(UserPrompt("enter match date")))
+                                   .First().Id);
+                        _matchesRepository.delete(match.Id);
                     }
-                    break;
-                case "player":
-                    {
-                        _repository.delete(_repository.GetPlayer(UserPrompt("Enter palayers name")));
-                    }
-                    break;
+                    break;               
                 default:
                     {
                         Console.WriteLine("wrong input!");

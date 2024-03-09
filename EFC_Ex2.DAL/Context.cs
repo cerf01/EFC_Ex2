@@ -6,6 +6,10 @@ namespace EFC_Ex2.DAL
 {
     public class Context : DbContext
     {
+        public Context() { }
+     
+        public Context(DbContextOptions<Context> options):base(options) { }
+
         public DbSet<SoccerTeams> SoccerTeams { get; set; }
 
         public DbSet<Matches> Matches { get;set;}
@@ -14,6 +18,8 @@ namespace EFC_Ex2.DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+      
+
             var builder = new ConfigurationBuilder()
                             .SetBasePath(AppContext.BaseDirectory)
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -22,7 +28,8 @@ namespace EFC_Ex2.DAL
 
             var connectionStr = configuration.GetConnectionString("DefaultConnection");
 
-            optionsBuilder.UseSqlServer(connectionStr);
+            if(!optionsBuilder.IsConfigured)
+                optionsBuilder.UseSqlServer(connectionStr);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) 

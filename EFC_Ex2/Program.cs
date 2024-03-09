@@ -16,7 +16,7 @@ namespace EFC_Ex2
             {
                 Console.ReadKey();
                 Console.Clear();
-                Console.WriteLine("Commands list:\n -show\n -add\n -upd\n -find\n -exit\n -maxWins\n -maxDef\n -maxDraw\n -maxGoals\n -maxMiss");
+                Console.WriteLine("Commands list:\n -show\n -add\n -upd\n -del\n -find\n -exit\n -maxWins\n -maxDef\n -maxDraw\n -maxGoals\n -maxMiss");
                 q = Console.ReadLine();
                 switch (q.ToLower())
                 {
@@ -95,6 +95,7 @@ namespace EFC_Ex2
                 }
             } while (q != "endoftime");
             Console.ReadKey();
+
         }
     }
 }

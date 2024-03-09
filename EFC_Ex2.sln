@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFC_Ex2", "EFC_Ex2\EFC_Ex2.csproj", "{5BE00B8B-D833-4FD9-B734-B6FD43175087}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFC_Ex2", "EFC_Ex2\EFC_Ex2.csproj", "{5BE00B8B-D833-4FD9-B734-B6FD43175087}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFC_Ex2.DAL", "EFC_Ex2.DAL\EFC_Ex2.DAL.csproj", "{1A5BD405-5E4E-4119-9433-37817C879AEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFC_Ex2.DAL", "EFC_Ex2.DAL\EFC_Ex2.DAL.csproj", "{1A5BD405-5E4E-4119-9433-37817C879AEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCTest", "EFCTest\EFCTest.csproj", "{09E447C4-3FE8-4498-87CE-048BFE9073C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1A5BD405-5E4E-4119-9433-37817C879AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A5BD405-5E4E-4119-9433-37817C879AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A5BD405-5E4E-4119-9433-37817C879AEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09E447C4-3FE8-4498-87CE-048BFE9073C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09E447C4-3FE8-4498-87CE-048BFE9073C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09E447C4-3FE8-4498-87CE-048BFE9073C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09E447C4-3FE8-4498-87CE-048BFE9073C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
